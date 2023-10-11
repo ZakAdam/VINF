@@ -1,5 +1,6 @@
 import requests
 import re
+from libraries import load_links
 
 
 def manage_links(rm_link, new_links, save_iterator, limit=10):
@@ -23,14 +24,7 @@ def manage_links(rm_link, new_links, save_iterator, limit=10):
         unprocessed_links_to_write.clear()
 
     links.pop()
-    links.extend(new_links)
 
-
-# URL of the web page you want to scrape
-url = "https://kyivindependent.com/tag/war/"  # Replace with your desired URL
-
-# Send an HTTP GET request to the URL
-response = requests.get(url)
 
 # Variable holding found links
 links = []
@@ -40,6 +34,15 @@ unprocessed_links_to_write = []
 links_stack = open('independent_stack.txt', 'a+')
 processed_links_stack = open('independent_processed.txt', 'a+')
 save_iterator = 0
+
+
+# URL of the web page you want to scrape
+url = "https://kyivindependent.com/tag/war/"  # Replace with your desired URL
+# Send an HTTP GET request to the URL
+response = requests.get(url)
+
+load_links.load_processed_links('independent_processed.txt', processed_links)
+load_links.load_links_stack('independent_stack.txt', links)
 
 # Check if the request was successful
 if response.status_code == 200:
@@ -91,4 +94,5 @@ for link in links:
 
     manage_links(link, article_links, save_iterator, 1)
 
+    print(save_iterator)
     exit(0)
