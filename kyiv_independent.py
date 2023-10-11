@@ -1,6 +1,31 @@
 import requests
 import re
 
+
+def manage_links(rm_link, new_links, save_iterator, limit=10):
+    processed_links_to_write.append(rm_link)
+    save_iterator += 1
+
+    for new_link in new_links:
+        if new_link not in processed_links:
+            links.append(new_link)
+            unprocessed_links_to_write.append(new_link)
+
+    if save_iterator >= limit:
+        for writable_link in processed_links_to_write:
+            processed_links_stack.write(writable_link + '\n')
+
+        for writable_link in unprocessed_links_to_write:
+            links_stack.write(writable_link + '\n')
+
+        save_iterator = 0
+        processed_links_to_write.clear()
+        unprocessed_links_to_write.clear()
+
+    links.pop()
+    links.extend(new_links)
+
+
 # URL of the web page you want to scrape
 url = "https://kyivindependent.com/tag/war/"  # Replace with your desired URL
 
@@ -9,6 +34,12 @@ response = requests.get(url)
 
 # Variable holding found links
 links = []
+processed_links = set()
+processed_links_to_write = []
+unprocessed_links_to_write = []
+links_stack = open('independent_stack.txt', 'a+')
+processed_links_stack = open('independent_processed.txt', 'a+')
+save_iterator = 0
 
 # Check if the request was successful
 if response.status_code == 200:
@@ -35,7 +66,6 @@ if response.status_code == 200:
 else:
     print(f"Failed to retrieve the page. Status code: {response.status_code}")
 
-
 # Start scraping websites
 for link in links:
     response = requests.get(link)
@@ -47,14 +77,18 @@ for link in links:
 
     # Header
     h1_pattern = r'<h1[^>]*>.*?</h1>'
-    #article_pattern = r'<div class="c-content ">\n.*\n.*\n\n.*<div id="reading-progress-end">'
+    h1_matches = re.search(h1_pattern, html_content, re.DOTALL)
+    # Article
     article_pattern = r'<div class=\'c-content \'>.*<div id="reading-progress-end">'
-    #article_pattern = r'c-content \'.*"reading-progress-end'
-    h1_matches = re.findall(h1_pattern, html_content, re.DOTALL)
     article_matches = re.search(article_pattern, html_content, re.DOTALL)
+    # Links
+    href_pattern = r'href=["\'](https?://[^"\']+)["\']'
+    article_links = re.findall(href_pattern, article_matches.group(0), re.DOTALL)
 
     print(article_matches.group(0))
-    #print(html_content.replace("\n", ''))
-    print(h1_matches)
+    print(h1_matches.group(0))
+    print(article_links)
+
+    manage_links(link, article_links, save_iterator, 1)
 
     exit(0)
