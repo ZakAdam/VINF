@@ -1,4 +1,3 @@
-import pandas as pd
 import requests
 import re
 from libraries import load_links
@@ -6,6 +5,7 @@ from libraries import csv_manager
 
 
 def manage_links(rm_link, new_links, iterator, limit=10):
+    processed_links.add(rm_link)
     processed_links_to_write.append(rm_link)
     iterator += 1
 
@@ -29,7 +29,7 @@ def manage_links(rm_link, new_links, iterator, limit=10):
         unprocessed_links_to_write.clear()
         print('Ended file storing.')
 
-    links.pop()
+    links.remove(rm_link)
 
     return iterator
 
@@ -80,12 +80,16 @@ else:
     print(f"Failed to retrieve the page. Status code: {response.status_code}")
 
 # Start scraping websites
-for link in links:
+#for link in links:
+while len(links) > 0:
+    link = next(iter(links))
     response = requests.get(link)
     print(link)
 
     if response.status_code != 200:
         print(f'Error on link: {link}')
+        processed_links.add(link)
+        links.remove(link)
         continue
 
     html_content = response.text
@@ -97,9 +101,19 @@ for link in links:
     article_pattern = r'<div class=\'c-content \'>.*<div id="reading-progress-end">'
     article_matches = re.search(article_pattern, html_content, re.DOTALL)
 
-    if article_matches.group(0) is None:
+    if article_matches is None:
         print(f'Link with no article: {link}')
+        processed_links.add(link)
+        links.remove(link)
         continue
+
+    date_pattern = r'(\w+ \d{1,2}, \d{4} \d{1,2}:\d{2} [APap][Mm])'
+    date_matches = re.search(date_pattern, html_content, re.DOTALL)
+    if date_matches is not None:
+        date_matches = date_matches.group(0)
+    else:
+        date_matches = None
+
     # Links
     href_pattern = r'href=["\'](https?://[^"\']+)["\']'
     article_links = re.findall(href_pattern, article_matches.group(0), re.DOTALL)
@@ -107,11 +121,16 @@ for link in links:
     #print(article_matches.group(0))
     print(page_count)
     print(h1_matches.group(0))
+    print(f'Current links size is: {len(links)}')
     print('\n')
     #print(article_links)
 
-    df.loc[len(df)] = [str(h1_matches.group(0).replace('\t', ' ')), link, 'Ukraine', article_matches.group(0).replace('\t', ' ')]
-    save_iterator = manage_links(link, article_links, save_iterator, limit=50)
+    df.loc[len(df)] = [str(h1_matches.group(0).replace('\t', ' ')),
+                       link,
+                       'Ukraine',
+                       date_matches,
+                       article_matches.group(0).replace('\t', ' ')]
+    save_iterator = manage_links(link, set(article_links), save_iterator, limit=1000)
 
     page_count += 1
     # exit(0)

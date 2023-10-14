@@ -3,6 +3,8 @@ import pandas as pd
 
 def load_data(filepath, sep='\t'):
     df = pd.read_csv(filepath, sep=sep, index_col=None)
+    if len(df) > 1:
+        df.set_index('Unnamed: 0', inplace=True)
     return df
 
 
