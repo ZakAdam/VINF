@@ -1,11 +1,8 @@
-more = [1, 2, 3, 4, 5]
+import requests
 
-#for i in more:
-#    print(i)
-#    more.pop()
+url = 'https://www.kyivpost.com/post/'
 
-i = 0
-while len(more) > 0:
-    print(i)
-    more.pop()
-    i += 1
+response = requests.get(url + '22721')
+
+print(response.status_code)
+print(response.text)
