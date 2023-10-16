@@ -7,7 +7,7 @@ df = csv_manager.load_data('data/data-post.csv')
 error_count = 0
 number_of_errors = 0
 post_id = 1
-limit = 10
+limit = 100
 
 while error_count < limit:
     response = requests.get(url + f'{post_id}')
@@ -27,7 +27,7 @@ while error_count < limit:
     h1_matches = re.search(h1_pattern, html_content, re.DOTALL)
 
     # Article
-    article_pattern = r'(<div id=\"post-content\">)(.*)</section>'
+    article_pattern = r'(<div id=\"post-content\">)(.*)\n</section>'
     article_matches = re.search(article_pattern, html_content, re.DOTALL)
 
     if article_matches is None:
@@ -43,7 +43,7 @@ while error_count < limit:
                        url + f'{post_id}',
                        'Ukraine',
                        None,
-                       article_matches.group(1).replace('\t', ' ')]
+                       article_matches.group(2).replace('\t', ' ')]
 
     if post_id % 1000 == 0:
         csv_manager.store_data('data/data-post.csv', df)

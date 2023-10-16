@@ -1,4 +1,5 @@
 .idea
 !.gitignore
 *.pyc
-libraries/__pycache__/*
+data/*.csv
+*.txt

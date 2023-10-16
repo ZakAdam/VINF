@@ -10,13 +10,15 @@ def manage_links(rm_link, new_links, iterator, limit=10):
     iterator += 1
 
     for new_link in new_links:
-        if new_link not in processed_links and 'https://kyivindependent.com/' in new_link:
+        if (new_link not in processed_links
+                and new_link.startswith('https://kyivindependent.com/')
+                and '/ghost/#/' not in new_link):
             links.add(new_link)
             unprocessed_links_to_write.append(new_link)
 
     if iterator >= limit:
         print('Started storing data to files...')
-        #csv_manager.store_data('data_old.csv', df)
+        # csv_manager.store_data('data_old.csv', df)
         csv_manager.store_data('data/data-tags.csv', df)
 
         for writable_link in processed_links_to_write:
@@ -43,7 +45,7 @@ unprocessed_links_to_write = []
 links_stack = open('independent_stack.txt', 'a+')
 processed_links_stack = open('independent_processed.txt', 'a+')
 save_iterator = 0
-#df = csv_manager.load_data('data_old.csv')
+# df = csv_manager.load_data('data_old.csv')
 df = csv_manager.load_data('data/data-tags.csv')
 page_count = 0
 
@@ -51,7 +53,7 @@ load_links.load_processed_links('independent_processed.txt', processed_links)
 load_links.load_links_stack('independent_stack.txt', links)
 
 # URL of the web page you want to scrape
-#url = "https://kyivindependent.com/tag/war/"
+# url = "https://kyivindependent.com/tag/war/"
 urls = ['https://kyivindependent.com/tag/war/', 'https://kyivindependent.com/tag/opinion/',
         'https://kyivindependent.com/tag/business/', 'https://kyivindependent.com/tag/eastern-europe/',
         'https://kyivindependent.com/tag/culture/', 'https://kyivindependent.com/tag/investigations/',
@@ -88,7 +90,7 @@ for url in urls:
         print(f"Failed to retrieve the page. Status code: {response.status_code}")
 
 # Start scraping websites
-#for link in links:
+# for link in links:
 while len(links) > 0:
     link = next(iter(links))
     response = requests.get(link)
@@ -106,8 +108,6 @@ while len(links) > 0:
     h1_pattern = r'<(h1|h2)[^>]*>.*?</(h1|h2)>'
     h1_matches = re.search(h1_pattern, html_content, re.DOTALL)
 
-    # try to store whole HTML
-    '''
     # Article
     article_pattern = r'<div class=\'c-content \'>.*<div id="reading-progress-end">'
     article_matches = re.search(article_pattern, html_content, re.DOTALL)
@@ -117,7 +117,13 @@ while len(links) > 0:
         processed_links.add(link)
         links.remove(link)
         continue
-        
+
+    '''
+    if h1_matches is None:
+        print(f'Link with no article: {link}')
+        processed_links.add(link)
+        links.remove(link)
+        continue
     '''
 
     date_pattern = r'(\w+ \d{1,2}, \d{4} \d{1,2}:\d{2} [APap][Mm])'
@@ -129,39 +135,38 @@ while len(links) > 0:
 
     # Links
     href_pattern = r'href=["\'](https?://[^"\']+)["\']'
-    #article_links = re.findall(href_pattern, article_matches.group(0), re.DOTALL)
+    # article_links = re.findall(href_pattern, article_matches.group(0), re.DOTALL)
     article_links = re.findall(href_pattern, html_content, re.DOTALL)
 
-
-    #print(article_matches.group(0))
     print(page_count)
     print(h1_matches.group(0))
     print(f'Current links size is: {len(links)}')
     print('\n')
-    #print(article_links)
-
-    # df.loc[len(df)] = [str(h1_matches.group(0).replace('\t', ' ')),
-    #                   link,
-    #                   'Ukraine',
-    #                   date_matches,
-    #                   article_matches.group(0).replace('\t', ' ')]
 
     df.loc[len(df)] = [str(h1_matches.group(0).replace('\t', ' ')),
                        link,
                        'Ukraine',
                        date_matches,
-                       html_content.replace('\t', ' ')]
+                       article_matches.group(0).replace('\t', ' ')]
 
-    save_iterator = manage_links(link, article_links, save_iterator, limit=5000)
+    '''
+    df.loc[len(df)] = [str(h1_matches.group(0).replace('\t', ' ')),
+                       link,
+                       'Ukraine',
+                       date_matches,
+                       html_content.replace('\t', ' ')]
+    '''
+
+    save_iterator = manage_links(link, article_links, save_iterator, limit=1000)
 
     page_count += 1
     # exit(0)
 
 # Store the last values, after all links are processed
-#manage_links('https://kyivindependent.com/tag/war/', [], 1000000000)
+# manage_links('https://kyivindependent.com/tag/war/', [], 1000000000)
 
 print('Started storing data to files...')
-#csv_manager.store_data('data_old.csv', df)
+# csv_manager.store_data('data_old.csv', df)
 csv_manager.store_data('data/data-tags.csv', df)
 
 for writable_link in processed_links_to_write:
