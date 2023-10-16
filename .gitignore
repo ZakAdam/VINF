@@ -1,7 +1,4 @@
 .idea
-.*
 !.gitignore
-*.txt
 *.pyc
 libraries/__pycache__/*
-*.csv
