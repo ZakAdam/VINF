@@ -3,7 +3,7 @@ import re
 from libraries import csv_manager
 
 url = 'https://www.kyivpost.com/post/'
-df = csv_manager.load_data('data-post.csv')
+df = csv_manager.load_data('data/data-post.csv')
 error_count = 0
 number_of_errors = 0
 post_id = 1
@@ -40,14 +40,14 @@ while error_count < limit:
     print('\n')
 
     df.loc[len(df)] = [h1_matches.group(2).replace('\t', ' '),
-                       None,
+                       url + f'{post_id}',
                        'Ukraine',
                        None,
                        article_matches.group(1).replace('\t', ' ')]
 
     if post_id % 1000 == 0:
-        csv_manager.store_data('data-post.csv', df)
+        csv_manager.store_data('data/data-post.csv', df)
 
     post_id += 1
 
-csv_manager.store_data('data-post.csv', df)
+csv_manager.store_data('data/data-post.csv', df)

@@ -16,8 +16,8 @@ def manage_links(rm_link, new_links, iterator, limit=10):
 
     if iterator >= limit:
         print('Started storing data to files...')
-        #csv_manager.store_data('data.csv', df)
-        csv_manager.store_data('data-tags.csv', df)
+        #csv_manager.store_data('data_old.csv', df)
+        csv_manager.store_data('data/data-tags.csv', df)
 
         for writable_link in processed_links_to_write:
             processed_links_stack.write(writable_link + '\n')
@@ -43,8 +43,8 @@ unprocessed_links_to_write = []
 links_stack = open('independent_stack.txt', 'a+')
 processed_links_stack = open('independent_processed.txt', 'a+')
 save_iterator = 0
-#df = csv_manager.load_data('data.csv')
-df = csv_manager.load_data('data-tags.csv')
+#df = csv_manager.load_data('data_old.csv')
+df = csv_manager.load_data('data/data-tags.csv')
 page_count = 0
 
 load_links.load_processed_links('independent_processed.txt', processed_links)
@@ -105,6 +105,9 @@ while len(links) > 0:
     # Header
     h1_pattern = r'<(h1|h2)[^>]*>.*?</(h1|h2)>'
     h1_matches = re.search(h1_pattern, html_content, re.DOTALL)
+
+    # try to store whole HTML
+    '''
     # Article
     article_pattern = r'<div class=\'c-content \'>.*<div id="reading-progress-end">'
     article_matches = re.search(article_pattern, html_content, re.DOTALL)
@@ -114,6 +117,8 @@ while len(links) > 0:
         processed_links.add(link)
         links.remove(link)
         continue
+        
+    '''
 
     date_pattern = r'(\w+ \d{1,2}, \d{4} \d{1,2}:\d{2} [APap][Mm])'
     date_matches = re.search(date_pattern, html_content, re.DOTALL)
@@ -124,7 +129,9 @@ while len(links) > 0:
 
     # Links
     href_pattern = r'href=["\'](https?://[^"\']+)["\']'
-    article_links = re.findall(href_pattern, article_matches.group(0), re.DOTALL)
+    #article_links = re.findall(href_pattern, article_matches.group(0), re.DOTALL)
+    article_links = re.findall(href_pattern, html_content, re.DOTALL)
+
 
     #print(article_matches.group(0))
     print(page_count)
@@ -133,11 +140,18 @@ while len(links) > 0:
     print('\n')
     #print(article_links)
 
+    # df.loc[len(df)] = [str(h1_matches.group(0).replace('\t', ' ')),
+    #                   link,
+    #                   'Ukraine',
+    #                   date_matches,
+    #                   article_matches.group(0).replace('\t', ' ')]
+
     df.loc[len(df)] = [str(h1_matches.group(0).replace('\t', ' ')),
                        link,
                        'Ukraine',
                        date_matches,
-                       article_matches.group(0).replace('\t', ' ')]
+                       html_content.replace('\t', ' ')]
+
     save_iterator = manage_links(link, article_links, save_iterator, limit=5000)
 
     page_count += 1
@@ -147,8 +161,8 @@ while len(links) > 0:
 #manage_links('https://kyivindependent.com/tag/war/', [], 1000000000)
 
 print('Started storing data to files...')
-#csv_manager.store_data('data.csv', df)
-csv_manager.store_data('data-tags.csv', df)
+#csv_manager.store_data('data_old.csv', df)
+csv_manager.store_data('data/data-tags.csv', df)
 
 for writable_link in processed_links_to_write:
     processed_links_stack.write(writable_link + '\n')

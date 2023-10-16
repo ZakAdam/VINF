@@ -11,7 +11,7 @@ offset = 0
 links = set()
 processed_links = set()
 page_count = 0
-df = csv_manager.load_data('data-moscow.csv')
+df = csv_manager.load_data('data/data-moscow.csv')
 
 # number of articles pre request: 18
 # number of max offset -> 1914
@@ -105,4 +105,4 @@ while len(links) > 0:
 
     page_count += 1
 
-csv_manager.store_data('data-moscow.csv', df)
+csv_manager.store_data('data/data-moscow.csv', df)
