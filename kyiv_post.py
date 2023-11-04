@@ -10,7 +10,15 @@ post_id = 1
 limit = 100
 
 while error_count < limit:
-    response = requests.get(url + f'{post_id}')
+
+    try:
+        response = requests.get(url + f'{post_id}')
+    except requests.exceptions.RequestException as e:
+        print(f"Request encountered an error: {e}")
+        print(f'Error on id: {post_id}')
+        number_of_errors += 1
+        post_id += 1
+        continue
 
     if response.status_code != 200:
         print(f'Error on post id: {post_id}')

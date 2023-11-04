@@ -27,7 +27,6 @@ while len(links) < 40000:
 print('Ending links gathering, starting to store crawl links...')
 
 iterator = 0
-processed_links = set()
 df = csv_manager.load_data('data/data-tass.csv')
 
 while len(links) > 0:
@@ -36,11 +35,17 @@ while len(links) > 0:
     post_datetime = links[post_url][1]
     link = 'https://tass.com' + post_url
 
-    response = requests.get(link)
+    try:
+        response = requests.get(link)
+    except requests.exceptions.RequestException as e:
+        print(f"Request encountered an error: {e}")
+        print(f'Error on link: {link}')
+        del links[post_url]
+        iterator += 1
+        continue
 
     if response.status_code != 200:
         print(f'Error on link: {link}')
-        processed_links.add(link)
         del links[post_url]
         iterator += 1
         continue
@@ -48,8 +53,14 @@ while len(links) > 0:
     html_content = response.text
 
     # Article
-    article_pattern = r'((<div class=\"text-content\">)(.*)<div class=\"column\">)'
+    article_pattern = r'(<div class=\"text-content\">)(.*)<div class=\"column\">'
     article_matches = re.search(article_pattern, html_content, re.DOTALL)
+
+    if article_matches is None:
+        print(f'Post with no article: {post_url}\n')
+        del links[post_url]
+        iterator += 1
+        continue
 
     print(iterator)
     print(post_url)
