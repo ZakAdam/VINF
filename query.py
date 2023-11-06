@@ -11,7 +11,7 @@ from java.io import File
 lucene.initVM()
 
 # Specify the directory where the MMap index is stored
-index_dir = 'moscow_index'  # Adjust to your index directory
+index_dir = 'index'  # Adjust to your index directory
 
 # Open the MMap index
 index = MMapDirectory(Paths.get(index_dir))
@@ -28,7 +28,7 @@ def query_string(string='Russia'):
     searcher = IndexSearcher(index_reader)
 
     query = query_parser.parse(string)
-    hits = searcher.search(query, 10)  # Limit the number of results to retrieve (adjust as needed)
+    hits = searcher.search(query, 100)  # Limit the number of results to retrieve (adjust as needed)
     #print(f'Number of hits: {len(hits)}')
 
     # Iterate through the search results
@@ -51,4 +51,4 @@ def query_string(string='Russia'):
 
 
 #query_string('Nothing to worry about,')
-query_string('Nothing worry')
+query_string('Gaza')

@@ -1,8 +1,13 @@
-import requests
+from libraries import csv_manager
+import pandas as pd
 
-url = 'https://www.kyivpost.com/post/'
+independent = csv_manager.load_data('data/data-tags.csv')
+post = csv_manager.load_data('data/data-post.csv')
+times = csv_manager.load_data('data/data-moscow.csv')
+tass = csv_manager.load_data('data/data-tass.csv')
 
-response = requests.get(url + '22721')
+#merged_df = pd.concat([independent, post, times, tass], ignore_index=True)
+merged_df = pd.concat([independent, post, times, tass])
 
-print(response.status_code)
-print(response.text)
+csv_manager.store_data('data/merged_data.csv', merged_df)
+print('Done!')

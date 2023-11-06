@@ -1,5 +1,6 @@
 import lucene
 import csv
+import sys
 
 from org.apache.lucene.analysis.standard import StandardAnalyzer
 from org.apache.lucene.document import Document, Field, TextField
@@ -13,9 +14,10 @@ from java.nio.file import Paths
 
 lucene.initVM()
 
-print('LUCENE is running?')
+print('LUCENE is running')
+csv.field_size_limit(sys.maxsize)
 
-index_dir = 'moscow_index'
+index_dir = 'index'
 # Create the index
 analyzer = StandardAnalyzer()
 config = IndexWriterConfig(analyzer)
@@ -23,14 +25,14 @@ index = MMapDirectory(Paths.get(index_dir))  # Use MMapDirectory for file-based 
 writer = IndexWriter(index, config)
 
 count = 0
-with open('data/data-moscow.csv', 'r') as file:
+with open('data/merged_data.csv', 'r') as file:
     csv_reader = csv.reader(file, delimiter='\t')
 
     # Skip the header line if needed
     next(csv_reader, None)
 
     for row in csv_reader:
-        print(f"Column 1: {row[0]}, Column 2: {row[1]}")
+        #print(f"Column 1: {row[0]}, Column 2: {row[1]}")
 
         doc = Document()
         doc.add(Field('title', row[1], TextField.TYPE_STORED))
@@ -41,7 +43,8 @@ with open('data/data-moscow.csv', 'r') as file:
         writer.addDocument(doc)
 
         count += 1
-        if count > 10: break
+        if count % 1000 == 0:
+            print(f'{count} records saved!')
 
     file.close()
 
@@ -50,7 +53,7 @@ writer.commit()
 writer.close()
 print(f'Number of lines: {count}')
 
-
+"""
 def query_string(string='Russia'):
     query_parser = QueryParser("content", analyzer)
     index_reader = DirectoryReader.open(index)
@@ -80,3 +83,4 @@ def query_string(string='Russia'):
 
 
 query_string('missile')
+"""
