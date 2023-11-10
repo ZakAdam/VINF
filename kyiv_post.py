@@ -6,7 +6,7 @@ url = 'https://www.kyivpost.com/post/'
 df = csv_manager.load_data('data/data-post.csv')
 error_count = 0
 number_of_errors = 0
-post_id = 1
+post_id = 22418 #1
 limit = 100
 
 h1_pattern = r'(<h1 class=\"post-title\">)(.*)</h1>'
@@ -54,6 +54,11 @@ while error_count < limit:
 
     if article_matches is None:
         print(f'Post with no article: {post_id}\n')
+        post_id += 1
+        continue
+
+    if date is None:
+        print(f'Post with no date: {post_id}\n')
         post_id += 1
         continue
 

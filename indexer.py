@@ -25,7 +25,7 @@ index = MMapDirectory(Paths.get(index_dir))  # Use MMapDirectory for file-based 
 writer = IndexWriter(index, config)
 
 count = 0
-with open('data/merged_data.csv', 'r') as file:
+with open('data/data_all.csv', 'r') as file:
     csv_reader = csv.reader(file, delimiter='\t')
 
     # Skip the header line if needed
@@ -40,6 +40,7 @@ with open('data/merged_data.csv', 'r') as file:
         doc.add(Field('country', row[3], TextField.TYPE_STORED))
         doc.add(Field('date', row[4], TextField.TYPE_STORED))
         doc.add(Field('content', row[5], TextField.TYPE_STORED))
+        doc.add(Field('Wiki Events', row[7], TextField.TYPE_STORED))
         writer.addDocument(doc)
 
         count += 1
