@@ -51,4 +51,4 @@ def query_string(string='Russia'):
 
 
 #query_string('Nothing to worry about,')
-query_string('Gaza')
+query_string('Tupolev')

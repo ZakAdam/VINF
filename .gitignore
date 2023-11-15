@@ -6,3 +6,4 @@ data/*.csv
 PyLucene
 index
 moscow_index
+spark/*

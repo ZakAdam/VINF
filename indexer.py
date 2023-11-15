@@ -17,6 +17,7 @@ lucene.initVM()
 print('LUCENE is running')
 csv.field_size_limit(sys.maxsize)
 
+file = 'data/data_all.csv'
 index_dir = 'index'
 # Create the index
 analyzer = StandardAnalyzer()
@@ -25,15 +26,13 @@ index = MMapDirectory(Paths.get(index_dir))  # Use MMapDirectory for file-based 
 writer = IndexWriter(index, config)
 
 count = 0
-with open('data/data_all.csv', 'r') as file:
+with open(file, 'r') as file:
     csv_reader = csv.reader(file, delimiter='\t')
 
     # Skip the header line if needed
     next(csv_reader, None)
 
     for row in csv_reader:
-        #print(f"Column 1: {row[0]}, Column 2: {row[1]}")
-
         doc = Document()
         doc.add(Field('title', row[1], TextField.TYPE_STORED))
         doc.add(Field('link', row[2], TextField.TYPE_STORED))
@@ -52,36 +51,4 @@ with open('data/data_all.csv', 'r') as file:
 # Commit and close the writer
 writer.commit()
 writer.close()
-print(f'Number of lines: {count}')
-
-"""
-def query_string(string='Russia'):
-    query_parser = QueryParser("content", analyzer)
-    index_reader = DirectoryReader.open(index)
-    searcher = IndexSearcher(index_reader)
-
-    query = query_parser.parse(string)
-    hits = searcher.search(query, 10)  # Limit the number of results to retrieve (adjust as needed)
-    #print(f'Number of hits: {len(hits)}')
-
-    # Iterate through the search results
-    for hit in hits.scoreDocs:
-        print('----------------------------------------------------------------------------------')
-        doc = searcher.doc(hit.doc)
-        link = doc.get("link")
-        country = doc.get("country")
-        date = doc.get("date")
-        #content = doc.get("content")
-        print(f"Link: {link}")
-        print(f"Country: {country}")
-        print(f"Date: {date}")
-        #print(f"Content: {content}")
-        print("")
-        print('----------------------------------------------------------------------------------')
-
-    # Close the index reader
-    index_reader.close()
-
-
-query_string('missile')
-"""
+print(f'Number of lines processed: {count}')
