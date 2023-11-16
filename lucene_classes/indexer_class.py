@@ -14,8 +14,8 @@ from java.nio.file import Paths
 
 
 class LuceneIndexer:
-    def __init__(self, csv_file='data/data_all.csv', index_dir='index'):
-        lucene.initVM()
+    def __init__(self, index_dir='index', csv_file='data/data_all.csv'):
+        #lucene.initVM()
         print('LUCENE is running')
         csv.field_size_limit(sys.maxsize)
         self.csv_file = csv_file
@@ -38,7 +38,8 @@ class LuceneIndexer:
                 doc.add(Field('title', row[1], TextField.TYPE_STORED))
                 doc.add(Field('link', row[2], TextField.TYPE_STORED))
                 doc.add(Field('country', row[3], TextField.TYPE_STORED))
-                doc.add(Field('date', row[4], TextField.TYPE_STORED))
+                #doc.add(Field('date', row[4], TextField.TYPE_STORED))
+                doc.add(Field('date', row[6], TextField.TYPE_STORED))
                 doc.add(Field('content', row[5], TextField.TYPE_STORED))
                 doc.add(Field('Wiki Events', row[7], TextField.TYPE_STORED))
                 self.writer.addDocument(doc)

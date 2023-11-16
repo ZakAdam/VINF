@@ -7,3 +7,4 @@ PyLucene
 index
 moscow_index
 spark/*
+*index
