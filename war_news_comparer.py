@@ -5,7 +5,6 @@ import lucene
 
 class ConsoleLuceneSearch:
     def __init__(self):
-        #self.lucene_searcher = LuceneSearcher('index')
         lucene.initVM()
 
     def run(self):
@@ -15,7 +14,9 @@ class ConsoleLuceneSearch:
 
             if choice == '1':
                 search_string = input("Enter the search string: ")
-                lucene_searcher = LuceneSearcher('wiki_index')
+                number_of_results = input("Enter the number of results: ")
+                show_content = bool(input("Show date events? (yes/no): "))
+                lucene_searcher = LuceneSearcher('wiki_index', int(number_of_results), show_content)
                 lucene_searcher.query_string(search_string)
             elif choice == '2':
                 index_name = input('Enter the new name of the created index: ')

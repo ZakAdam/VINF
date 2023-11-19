@@ -1,3 +1,4 @@
+from colorama import Fore
 import textwrap
 import shutil
 
@@ -11,10 +12,11 @@ from java.nio.file import Paths
 
 
 class LuceneSearcher:
-    def __init__(self, index_dir='index', max_results=10):
+    def __init__(self, index_dir='index', max_results=10, show_content=False):
         #lucene.initVM()
         self.index_dir = index_dir
         self.max_results = max_results
+        self.show_content = show_content
         self.index = MMapDirectory(Paths.get(index_dir))
         self.searcher = IndexSearcher(DirectoryReader.open(self.index))
         self.analyzer = StandardAnalyzer()
@@ -44,7 +46,8 @@ class LuceneSearcher:
                                'title': doc.get("title"),
                                'country': doc.get("country"),
                                'content': doc.get('content'),
-                               'date': doc.get("date")})
+                               'date': doc.get("date"),
+                               'wiki_data': doc.get('Wiki Events')})
 
         # Close the index reader
         index_reader.close()
@@ -55,14 +58,25 @@ class LuceneSearcher:
 
         for row in range(self.max_results):
             print('----------------------------------------------------------------------------------')
-            print(f"{textwrap.fill(self.ukraine_pages[row]['title']).ljust(100)} | {self.russian_pages[row]['title'].rjust(100)}")
-            print(f"{self.ukraine_pages[row]['country'].ljust(100)} | {self.russian_pages[row]['country'].rjust(100)}")
-            print(f"{self.ukraine_pages[row]['date'].ljust(100)} | {self.russian_pages[row]['date'].rjust(100)}")
+            self.print_wrapped_text_with_separator(self.ukraine_pages[row]['title'],
+                                                   self.russian_pages[row]['title'])
+            self.print_wrapped_text_with_separator(self.ukraine_pages[row]['country'],
+                                                   self.russian_pages[row]['country'])
+            self.print_wrapped_text_with_separator(self.ukraine_pages[row]['date'],
+                                                   self.russian_pages[row]['date'])
             print("\n")
             self.print_wrapped_text_with_separator(self.ukraine_pages[row]['content'], self.russian_pages[row]['content'])
             print("\n")
-            print(f"{textwrap.fill(self.ukraine_pages[row]['link']).ljust(100)} | {self.russian_pages[row]['link'].rjust(100)}")
+            #print(f"{textwrap.fill(self.ukraine_pages[row]['link']).ljust(100)} | {self.russian_pages[row]['link'].rjust(100)}")
+            self.print_wrapped_text_with_separator(self.ukraine_pages[row]['link'],
+                                                   self.russian_pages[row]['link'])
+
+            if self.show_content:
+                print('--------------------------------|DAY EVENTS|--------------------------------------')
+                self.print_wrapped_text_with_separator(self.ukraine_pages[row]['wiki_data'],
+                                                       self.russian_pages[row]['wiki_data'])
             print('----------------------------------------------------------------------------------')
+
 
     def print_wrapped_text_with_separator(self, left_text, right_text, separator='|'):
         # Get the terminal width
