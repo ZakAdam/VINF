@@ -38,7 +38,6 @@ class LuceneIndexer:
                 doc.add(Field('title', row[1], TextField.TYPE_STORED))
                 doc.add(Field('link', row[2], TextField.TYPE_STORED))
                 doc.add(Field('country', row[3], TextField.TYPE_STORED))
-                #doc.add(Field('date', row[4], TextField.TYPE_STORED))
                 doc.add(Field('date', row[6], TextField.TYPE_STORED))
                 doc.add(Field('content', row[5], TextField.TYPE_STORED))
                 doc.add(Field('Wiki Events', row[7], TextField.TYPE_STORED))

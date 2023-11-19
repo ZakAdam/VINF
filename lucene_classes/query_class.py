@@ -1,4 +1,4 @@
-from colorama import Fore
+from colorama import Fore, Style
 import textwrap
 import shutil
 
@@ -13,7 +13,6 @@ from java.nio.file import Paths
 
 class LuceneSearcher:
     def __init__(self, index_dir='index', max_results=10, show_content=False):
-        #lucene.initVM()
         self.index_dir = index_dir
         self.max_results = max_results
         self.show_content = show_content
@@ -62,12 +61,14 @@ class LuceneSearcher:
                                                    self.russian_pages[row]['title'])
             self.print_wrapped_text_with_separator(self.ukraine_pages[row]['country'],
                                                    self.russian_pages[row]['country'])
+            #self.print_wrapped_text_with_separator(Fore.GREEN + self.ukraine_pages[row]['date'] + Style.RESET_ALL,
+            #                                       Fore.GREEN + self.russian_pages[row]['date'] + Style.RESET_ALL)
             self.print_wrapped_text_with_separator(self.ukraine_pages[row]['date'],
                                                    self.russian_pages[row]['date'])
+
             print("\n")
             self.print_wrapped_text_with_separator(self.ukraine_pages[row]['content'], self.russian_pages[row]['content'])
             print("\n")
-            #print(f"{textwrap.fill(self.ukraine_pages[row]['link']).ljust(100)} | {self.russian_pages[row]['link'].rjust(100)}")
             self.print_wrapped_text_with_separator(self.ukraine_pages[row]['link'],
                                                    self.russian_pages[row]['link'])
 
