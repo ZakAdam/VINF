@@ -22,6 +22,12 @@ class ConsoleLuceneSearch:
                 index_name = input('Enter the new name of the created index: ')
                 indexer = LuceneIndexer(index_name)
                 indexer.index_csv()
+            elif choice == '3':
+                search_string = input('Enter the date you want to find: ')
+                number_of_results = input("Enter the number of results: ")
+                show_content = bool(input("Show date events? (yes/no): "))
+                lucene_searcher = LuceneSearcher('wiki_index', int(number_of_results), show_content)
+                lucene_searcher.query_string(search_string, date_search=True)
             elif choice == 'q':
                 break
             else:
@@ -29,8 +35,9 @@ class ConsoleLuceneSearch:
 
     def display_menu(self):
         print("\nLucene Search Console")
-        print("1. Perform Search")
+        print("1. Perform content Search")
         print("2. Create new Index")
+        print("3. Perform date search")
         print("q. Quit")
 
 

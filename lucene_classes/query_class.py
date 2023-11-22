@@ -22,13 +22,19 @@ class LuceneSearcher:
         self.ukraine_pages = []
         self.russian_pages = []
 
-    def query_string(self, query_str='Russia'):
-        self.search_by_country(query_str, 'Ukraine', self.ukraine_pages)
-        self.search_by_country(query_str, 'Russia', self.russian_pages)
+    def query_string(self, query_str='Russia', date_search=False):
+        if date_search:
+            query_parser = QueryParser("date", self.analyzer)
+        else:
+            query_parser = QueryParser("content", self.analyzer)
+
+        self.search_by_country(query_str, 'Ukraine', self.ukraine_pages, query_parser)
+        self.search_by_country(query_str, 'Russia', self.russian_pages, query_parser)
         self.print_results()
 
-    def search_by_country(self, query_str, country, pages_dict):
-        query_parser = QueryParser("content", self.analyzer)
+    def search_by_country(self, query_str, country, pages_dict, query_parser):
+        # query_parser = QueryParser("content", self.analyzer)
+        # query_parser = QueryParser("date", self.analyzer)
         index_reader = DirectoryReader.open(self.index)
         searcher = IndexSearcher(index_reader)
 
@@ -52,8 +58,13 @@ class LuceneSearcher:
         index_reader.close()
 
     def print_results(self):
+        if not self.ukraine_pages and not self.russian_pages:
+            print(Fore.YELLOW + 'No results found for this query!' + Style.RESET_ALL)
+            return
 
-        line_width = 80
+        dummy_dict = {'title': '', 'country': '', 'date': '', 'content': '', 'link': '', 'wiki_data': ''}
+        self.ukraine_pages = self.ukraine_pages + [dummy_dict] * (self.max_results - len(self.ukraine_pages))
+        self.russian_pages = self.russian_pages + [dummy_dict] * (self.max_results - len(self.russian_pages))
 
         for row in range(self.max_results):
             print('----------------------------------------------------------------------------------')
@@ -61,11 +72,8 @@ class LuceneSearcher:
                                                    self.russian_pages[row]['title'])
             self.print_wrapped_text_with_separator(self.ukraine_pages[row]['country'],
                                                    self.russian_pages[row]['country'])
-            #self.print_wrapped_text_with_separator(Fore.GREEN + self.ukraine_pages[row]['date'] + Style.RESET_ALL,
-            #                                       Fore.GREEN + self.russian_pages[row]['date'] + Style.RESET_ALL)
             self.print_wrapped_text_with_separator(self.ukraine_pages[row]['date'],
                                                    self.russian_pages[row]['date'])
-
             print("\n")
             self.print_wrapped_text_with_separator(self.ukraine_pages[row]['content'], self.russian_pages[row]['content'])
             print("\n")
