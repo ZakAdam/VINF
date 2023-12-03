@@ -12,7 +12,7 @@ from java.nio.file import Paths
 
 
 class LuceneSearcher:
-    def __init__(self, index_dir='index', max_results=10, show_content=False):
+    def __init__(self, index_dir='index', max_results=10, show_content=False, test_env=False):
         self.index_dir = index_dir
         self.max_results = max_results
         self.show_content = show_content
@@ -21,8 +21,15 @@ class LuceneSearcher:
         self.analyzer = StandardAnalyzer()
         self.ukraine_pages = []
         self.russian_pages = []
+        self.test_env = test_env
+        # Get terminal width
+        self.terminal_width = shutil.get_terminal_size()[0] - 2
 
     def query_string(self, query_str='Russia', date_search=False):
+        if not query_str:
+            print('Empty string is not valid input')
+            return
+
         if date_search:
             query_parser = QueryParser("date", self.analyzer)
         else:
@@ -30,11 +37,13 @@ class LuceneSearcher:
 
         self.search_by_country(query_str, 'Ukraine', self.ukraine_pages, query_parser)
         self.search_by_country(query_str, 'Russia', self.russian_pages, query_parser)
-        self.print_results()
+
+        if not self.test_env:
+            self.print_results()
+        else:
+            return {'UKR': self.ukraine_pages, 'RUS': self.russian_pages}
 
     def search_by_country(self, query_str, country, pages_dict, query_parser):
-        # query_parser = QueryParser("content", self.analyzer)
-        # query_parser = QueryParser("date", self.analyzer)
         index_reader = DirectoryReader.open(self.index)
         searcher = IndexSearcher(index_reader)
 
@@ -44,7 +53,6 @@ class LuceneSearcher:
         hits = searcher.search(query, self.max_results)
 
         # Print the search results
-        print(f"Results for '{query_str}' in {country}:\n")
         for hit in hits.scoreDocs:
             doc = searcher.doc(hit.doc)
             pages_dict.append({'link': doc.get("link"),
@@ -67,7 +75,7 @@ class LuceneSearcher:
         self.russian_pages = self.russian_pages + [dummy_dict] * (self.max_results - len(self.russian_pages))
 
         for row in range(self.max_results):
-            print('----------------------------------------------------------------------------------')
+            print('-' * self.terminal_width)
             self.print_wrapped_text_with_separator(self.ukraine_pages[row]['title'],
                                                    self.russian_pages[row]['title'])
             self.print_wrapped_text_with_separator(self.ukraine_pages[row]['country'],
@@ -81,23 +89,19 @@ class LuceneSearcher:
                                                    self.russian_pages[row]['link'])
 
             if self.show_content:
-                print('--------------------------------|DAY EVENTS|--------------------------------------')
+                print('-' * int(self.terminal_width / 2 - 6) + '|DAY EVENTS|' + '-' * int(self.terminal_width / 2 - 6))
                 self.print_wrapped_text_with_separator(self.ukraine_pages[row]['wiki_data'],
                                                        self.russian_pages[row]['wiki_data'])
-            print('----------------------------------------------------------------------------------')
-
+            print('-' * self.terminal_width)
 
     def print_wrapped_text_with_separator(self, left_text, right_text, separator='|'):
-        # Get the terminal width
-        terminal_width, _ = shutil.get_terminal_size()
-
         # Calculate the width for each section (left, separator, right)
         separator_width = len(separator)
-        left_width = (terminal_width - separator_width) // 2
+        left_width = (self.terminal_width - separator_width) // 2
 
         # Wrap the left and right texts
         wrapped_left = textwrap.wrap(left_text, width=left_width)
-        wrapped_right = textwrap.wrap(right_text, width=terminal_width - left_width - separator_width)
+        wrapped_right = textwrap.wrap(right_text, width=self.terminal_width - left_width - separator_width)
 
         # Find the maximum number of lines between left and right sections
         max_lines = max(len(wrapped_left), len(wrapped_right))
