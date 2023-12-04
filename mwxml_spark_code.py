@@ -9,7 +9,6 @@ if len(sys.argv) != 2:
     print("Usage: python script.py <path_to_single_dump>")
     sys.exit(1)
 
-print('Riadok 22')
 # Create a Spark session
 spark = SparkSession.builder.appName("War Events").getOrCreate()
 

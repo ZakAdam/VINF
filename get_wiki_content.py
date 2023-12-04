@@ -1,3 +1,4 @@
+# Script to scrape Date Events from Wikipedia. Used to enhance our scraped data.
 from libraries import csv_manager
 import requests
 import json
@@ -32,7 +33,7 @@ for date in date_counts['wiki_date']:
 
 print("Started writing dictionary to a file")
 with open("data/dates_events-all.json", "w") as fp:
-    json.dump(events_json, fp)  # encode dict into JSON
+    json.dump(events_json, fp)
 print("Done writing dict into .txt file")
 
 

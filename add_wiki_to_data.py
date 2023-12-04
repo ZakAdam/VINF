@@ -19,8 +19,6 @@ for index, row in df.iterrows():
         continue
 
     events_data = events_dict[row['wiki_date']]
-    #print(wiki_date)
-    # df.at[index, 'wiki_date'] = wiki_date
     wiki_data.append(events_data)
 
 
@@ -29,7 +27,6 @@ print('Ended processing...')
 print(f'Number of rows without date: {empty_dates_number}')
 print('Starting storing data...')
 
-#csv_manager.store_data('data/merged_date_date.csv', df[0:5])
 csv_manager.store_data('data/data_all.csv', df)
 
 print('Donzel! :)')
