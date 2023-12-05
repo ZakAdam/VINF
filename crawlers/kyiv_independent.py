@@ -4,11 +4,13 @@ from libraries import load_links
 from libraries import csv_manager
 
 
+# Method responsible for management of processed and new links
 def manage_links(rm_link, new_links, iterator, limit=10):
     processed_links.add(rm_link)
     processed_links_to_write.append(rm_link)
     iterator += 1
 
+    # Check if found links are valid for us
     for new_link in new_links:
         if (new_link not in processed_links
                 and new_link.startswith('https://kyivindependent.com/')
@@ -16,14 +18,17 @@ def manage_links(rm_link, new_links, iterator, limit=10):
             links.add(new_link)
             unprocessed_links_to_write.append(new_link)
 
+    # After given number of iteration, store links to the file
     if iterator >= limit:
         print('Started storing data to files...')
         # csv_manager.store_data('data_old.csv', df)
         csv_manager.store_data('../data/data-tags.csv', df)
 
+        # store processed links
         for writable_link in processed_links_to_write:
             processed_links_stack.write(writable_link + '\n')
 
+        # store UNprocessed links
         for writable_link in unprocessed_links_to_write:
             links_stack.write(writable_link + '\n')
 
@@ -32,27 +37,26 @@ def manage_links(rm_link, new_links, iterator, limit=10):
         unprocessed_links_to_write.clear()
         print('Ended file storing.')
 
+    # remove processed links from array
     links.remove(rm_link)
 
     return iterator
 
 
-# Variable holding found links
-links = set()
-processed_links = set()
-processed_links_to_write = []
-unprocessed_links_to_write = []
-links_stack = open('independent_stack.txt', 'a+')
-processed_links_stack = open('independent_processed.txt', 'a+')
+links = set()                       # Variable holding found links
+processed_links = set()             # Set to hold already processed links
+processed_links_to_write = []       # Array for links that are already processed
+unprocessed_links_to_write = []     # Array for links that are not processed
+links_stack = open('independent_stack.txt', 'a+')   # Open file with unprocessed links
+processed_links_stack = open('independent_processed.txt', 'a+')     # Open file with processed links
 save_iterator = 0
-# df = csv_manager.load_data('data_old.csv')
-df = csv_manager.load_data('../data/data-tags.csv')
+df = csv_manager.load_data('../data/data-tags.csv')     # Load CSV data from file as dataframe
 page_count = 0
 
 load_links.load_processed_links('independent_processed.txt', processed_links)
 load_links.load_links_stack('independent_stack.txt', links)
 
-# URL of the web page you want to scrape
+# URL of the web pages you want to scrape
 # url = "https://kyivindependent.com/tag/war/"
 urls = ['https://kyivindependent.com/tag/war/', 'https://kyivindependent.com/tag/opinion/',
         'https://kyivindependent.com/tag/business/', 'https://kyivindependent.com/tag/eastern-europe/',
@@ -80,9 +84,9 @@ for url in urls:
         for h3_match in h3_matches:
             # Search for nested <a> tags within the <h3> element
             a_matches = re.search(a_pattern, h3_match)
+            # Found links add to the array for processing
             if a_matches is not None:
                 links.add('https://kyivindependent.com' + str(a_matches.group(1)))
-                # break
 
         print(f'Starting links size: {len(links)}')
 
@@ -90,7 +94,6 @@ for url in urls:
         print(f"Failed to retrieve the page. Status code: {response.status_code}")
 
 # Start scraping websites
-# for link in links:
 while len(links) > 0:
     link = next(iter(links))
     response = requests.get(link)
@@ -118,14 +121,7 @@ while len(links) > 0:
         links.remove(link)
         continue
 
-    '''
-    if h1_matches is None:
-        print(f'Link with no article: {link}')
-        processed_links.add(link)
-        links.remove(link)
-        continue
-    '''
-
+    # Date pattern
     date_pattern = r'(\w+ \d{1,2}, \d{4} \d{1,2}:\d{2} [APap][Mm])'
     date_matches = re.search(date_pattern, html_content, re.DOTALL)
     if date_matches is not None:
@@ -135,7 +131,6 @@ while len(links) > 0:
 
     # Links
     href_pattern = r'href=["\'](https?://[^"\']+)["\']'
-    # article_links = re.findall(href_pattern, article_matches.group(0), re.DOTALL)
     article_links = re.findall(href_pattern, html_content, re.DOTALL)
 
     print(page_count)
@@ -143,30 +138,19 @@ while len(links) > 0:
     print(f'Current links size is: {len(links)}')
     print('\n')
 
+    # Add data to the dataframe
     df.loc[len(df)] = [str(h1_matches.group(0).replace('\t', ' ')),
                        link,
                        'Ukraine',
                        date_matches,
                        article_matches.group(0).replace('\t', ' ')]
 
-    '''
-    df.loc[len(df)] = [str(h1_matches.group(0).replace('\t', ' ')),
-                       link,
-                       'Ukraine',
-                       date_matches,
-                       html_content.replace('\t', ' ')]
-    '''
-
     save_iterator = manage_links(link, article_links, save_iterator, limit=1000)
 
     page_count += 1
-    # exit(0)
 
 # Store the last values, after all links are processed
-# manage_links('https://kyivindependent.com/tag/war/', [], 1000000000)
-
 print('Started storing data to files...')
-# csv_manager.store_data('data_old.csv', df)
 csv_manager.store_data('../data/data-tags.csv', df)
 
 for writable_link in processed_links_to_write:

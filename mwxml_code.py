@@ -3,7 +3,7 @@ import json
 import glob
 import re
 
-# I don't know the correct path to the data file, so it will be fixed later :)
+# Original code for the Wikipedia parsing -> not used
 paths = glob.glob('spark/enwiki*.xml*.bz2')
 pattern = re.compile(r'Current events/.*')
 events_json = {}

@@ -4,7 +4,7 @@ import json
 import re
 import sys
 
-
+# Changed code so it works with spark -> not used
 if len(sys.argv) != 2:
     print("Usage: python script.py <path_to_single_dump>")
     sys.exit(1)

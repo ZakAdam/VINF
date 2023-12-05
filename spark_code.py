@@ -1,3 +1,4 @@
+# Spark script used to parse Wikipedia data on cluster -> this got used
 import sys
 import re
 from pyspark.sql import SparkSession
@@ -40,16 +41,20 @@ wiki_df = spark.read.format("com.databricks.spark.xml") \
 current_event_df = wiki_df.filter(col("title").like("Portal:Current events/%"))
 
 
+# Custom method used to get date from title of the page.
+# It cannot be loaded from revision date as it is a date of last change not event date.
 def format_date(title):
     return title.split('/')[-1].replace(' ', '_')
 
 
+# Custom method used to get only important content from wikipedia page
 def format_text(text):
     if text is None:
         return None
 
     events_matches = re.search(events_pattern, text, re.DOTALL)
 
+    # If no content is found, return None
     if events_matches is None:
         return None
     else:
@@ -66,4 +71,5 @@ modified_title_text_df = current_event_df \
     .withColumn("modified_text", custom_text_udf(col("revision.text._VALUE"))) \
     .select("modified_title", "modified_text")
 
+# Write the data to the JSONs in directory
 modified_title_text_df.write.json('events_json-azak', mode='overwrite')

@@ -13,28 +13,32 @@ from java.io import File
 from java.nio.file import Paths
 
 
+# Define a class for Lucene indexing functionality
 class LuceneIndexer:
+    # Load all Lucene required objects and index directory + data file
     def __init__(self, index_dir='index', csv_file='data/data_all.csv'):
-        #lucene.initVM()
-        print('LUCENE is running')
+        # Initialize LuceneIndexer with default parameters
         csv.field_size_limit(sys.maxsize)
         self.csv_file = csv_file
         self.index_dir = index_dir
-        self.analyzer = StandardAnalyzer()
+        self.analyzer = StandardAnalyzer()  # Lucene standard text analyzer
         self.config = IndexWriterConfig(self.analyzer)
-        self.index = MMapDirectory(Paths.get(index_dir))
+        self.index = MMapDirectory(Paths.get(index_dir))  # Lucene index directory
         self.writer = IndexWriter(self.index, self.config)
 
     def index_csv(self):
         count = 0
+        # Open and read data file
         with open(self.csv_file, 'r') as file:
             csv_reader = csv.reader(file, delimiter='\t')
 
             # Skip the header line if needed
             next(csv_reader, None)
 
+            # Process and store each row to the index
             for row in csv_reader:
                 doc = Document()
+                # Add fields to the Lucene document
                 doc.add(Field('title', row[1], TextField.TYPE_STORED))
                 doc.add(Field('link', row[2], TextField.TYPE_STORED))
                 doc.add(Field('country', row[3], TextField.TYPE_STORED))
@@ -57,5 +61,6 @@ class LuceneIndexer:
 
 # Example usage
 if __name__ == "__main__":
+    # Create an instance of LuceneIndexer and perform CSV indexing
     lucene_indexer = LuceneIndexer()
     lucene_indexer.index_csv()
