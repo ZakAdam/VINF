@@ -16,34 +16,34 @@ class ConsoleLuceneSearch:
                 # Option 1: Perform content search
                 search_string = input("Enter the search string: ")
                 number_of_results = input("Enter the number of results: ")
-                show_content = bool(input("Show date events? (yes/no): "))
+                show_content = bool(input("Show date events? (yes/[leave empty for no]): "))
                 lucene_searcher = LuceneSearcher('wiki_index', int(number_of_results), show_content)
                 lucene_searcher.query_string(search_string)
             elif choice == '2':
-                # Option 2: Create a new index
+                # Option 2: Perform date search
+                search_string = input('Enter the date you want to find: ')
+                number_of_results = input("Enter the number of results: ")
+                show_content = bool(input("Show date events? (yes/[leave empty for no]): "))
+                lucene_searcher = LuceneSearcher('wiki_index', int(number_of_results), show_content)
+                lucene_searcher.query_string(search_string, date_search=True)
+            elif choice == '3':
+                # Option 3: Create a new index
                 index_name = input('Enter the new name of the created index: ')
                 indexer = LuceneIndexer(index_name)
                 indexer.index_csv()
-            elif choice == '3':
-                # Option 3: Perform date search
-                search_string = input('Enter the date you want to find: ')
-                number_of_results = input("Enter the number of results: ")
-                show_content = bool(input("Show date events? (yes/no): "))
-                lucene_searcher = LuceneSearcher('wiki_index', int(number_of_results), show_content)
-                lucene_searcher.query_string(search_string, date_search=True)
             elif choice == 'q':
                 # Option 'q': Quit the application
                 break
             else:
-                # Invalid choice
+                # Invalid input
                 print("Invalid choice. Please enter a valid option.")
 
     def display_menu(self):
         # Method to display the menu options
-        print("\nLucene Search Console")
+        print("\nWar News Search/Comparer Console")
         print("1. Perform content Search")
-        print("2. Create new Index")
-        print("3. Perform date search")
+        print("2. Perform date search")
+        print("3. Create new Index")
         print("q. Quit")
 
 
